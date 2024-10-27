@@ -9,10 +9,12 @@ public class ApplicationDbContext : DbContext
     }
     
     public DbSet<Customer> Customers { get; set; }
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Customer>().HasData(
-            new Customer { Id = Guid.NewGuid().ToString("N"), Name = "John Doe" });
+            new Customer { Id = Guid.NewGuid().ToString("N"), Name = "John Doe" },
+            new Customer { Id = Guid.NewGuid().ToString("N"), Name = "Jane Doe" });
     }
 }

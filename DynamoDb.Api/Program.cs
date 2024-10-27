@@ -1,5 +1,13 @@
+using Amazon;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.Model;
 using DynamoDb.Api.Data;
 using DynamoDb.Api.Data.Repositories;
+using DynamoDb.Api.Data.Repositories.DynamoDb;
+using DynamoDb.Api.Data.Repositories.Postgres;
+using DynamoDb.Api.Extensions;
+using DynamoDb.Api.Options;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -36,12 +44,19 @@ services.AddVersionedApiExplorer(setup =>
     setup.SubstituteApiVersionInUrl = true;
 });
 
-
+// Postgres
 services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("default")));
 
+// DynamoDB
 
+services.AddDynamoDb(builder.Configuration);
+
+
+// DI
+services.AddScoped<IDynamoDBContext, DynamoDBContext>();
 services.AddScoped<ICustomerRepository, CustomerRepository>();
+services.AddScoped<IDynamoCustomerRepository, DynamoCustomerRepository>();
 
 services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 services.AddControllers();
@@ -76,6 +91,8 @@ if (pendingMigrations.Any())
 {
     await context.Database.MigrateAsync();
 }
+
+app.CreateDynamoDbTables(app.Configuration);
 
 app.UseCors();
 app.UseHttpsRedirection();
