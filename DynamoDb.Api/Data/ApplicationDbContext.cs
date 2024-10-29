@@ -16,5 +16,8 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Customer>().HasData(
             new Customer { Id = Guid.NewGuid().ToString("N"), Name = "John Doe" },
             new Customer { Id = Guid.NewGuid().ToString("N"), Name = "Jane Doe" });
+        
+        modelBuilder.ApplyConfigurationsFromAssembly(System.Reflection.Assembly.GetExecutingAssembly());
+        base.OnModelCreating(modelBuilder);
     }
 }
