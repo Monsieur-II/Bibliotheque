@@ -94,10 +94,10 @@ if (pendingMigrations.Any())
 
 app.CreateDynamoDbTables(app.Configuration);
 
-app.UseCors();
-app.UseHttpsRedirection();
 
+app.UseHttpsRedirection();
 app.UseRouting();
+app.UseCors();
 app.MapControllers();
 
 app.Run();

@@ -16,14 +16,14 @@ public static class ServiceCollectionExtensions
 
         if (dynamoDbConfig!.LocalMode)
         {
-            clientConfig.ServiceURL = dynamoDbConfig.LocalServiceUrl;
+            clientConfig.ServiceURL = dynamoDbConfig.LocalServiceUrl; // Default is http://localhost:8000
         }
 
         var client = new AmazonDynamoDBClient("fake", "fake", clientConfig);
 
-// NB: client could also be instantiated as follows:
-// var client = new AmazonDynamoDBClient(clientConfig);
-// But with this approach, you will need to set the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables and it will be picked from there.
+        // NB: client could also be instantiated as follows:
+        // var client = new AmazonDynamoDBClient(clientConfig);
+        // But with this approach, you will need to set the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables and it will be picked from there.
 
         services.AddSingleton<IAmazonDynamoDB>(client); // Register the client
         services.AddSingleton<IDynamoDBContext, DynamoDBContext>(); // Register the context.
