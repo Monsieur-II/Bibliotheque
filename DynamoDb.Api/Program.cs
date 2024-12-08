@@ -1,13 +1,8 @@
-using Amazon;
-using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.Model;
 using DynamoDb.Api.Data;
-using DynamoDb.Api.Data.Repositories;
 using DynamoDb.Api.Data.Repositories.DynamoDb;
 using DynamoDb.Api.Data.Repositories.Postgres;
 using DynamoDb.Api.Extensions;
-using DynamoDb.Api.Options;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -89,7 +84,7 @@ var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
 
 if (pendingMigrations.Any())
 {
-    await context.Database.MigrateAsync();
+    await context.Database.MigrateAsync(); //NB: This also calls EnsureCreated under the hood
 }
 
 app.CreateDynamoDbTables(app.Configuration);

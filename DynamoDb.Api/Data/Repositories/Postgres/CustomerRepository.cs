@@ -35,7 +35,7 @@ public class CustomerRepository : ICustomerRepository
     
     public async Task<Customer?> GetCustomer(string id)
     {
-        return await _dbContext.Customers.Where(x => x.Id == id).FirstOrDefaultAsync();
+        return await _dbContext.Customers.FindAsync(id);
     }
     
     public async Task<List<Customer>> GetCustomers()

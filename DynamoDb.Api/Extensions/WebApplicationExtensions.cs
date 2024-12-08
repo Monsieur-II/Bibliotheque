@@ -12,7 +12,7 @@ public static class WebApplicationExtensions
 
         var tablesConfig = configuration.GetSection(nameof(DynamoTablesConfig)).Get<DynamoTablesConfig>();
 
-        var tables = await dynamoDb!.ListTablesAsync();
+        var tables = await dynamoDb.ListTablesAsync();
         if (!tables.TableNames.Contains(tablesConfig!.CustomerTableName))
         {
             var request = new CreateTableRequest

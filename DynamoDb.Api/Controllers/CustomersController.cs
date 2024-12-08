@@ -1,10 +1,9 @@
-using DynamoDb.Api.Data.Repositories;
 using DynamoDb.Api.Data.Repositories.DynamoDb;
 using DynamoDb.Api.Data.Repositories.Postgres;
 using DynamoDb.Api.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DynamoDb.Api;
+namespace DynamoDb.Api.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
