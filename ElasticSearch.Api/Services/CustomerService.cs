@@ -40,11 +40,18 @@ public class CustomerService : ICustomerService
         return customer.Source;
     }
 
-    public async Task<List<Customer>> GetAllAsync()
+    public async Task<List<Customer>> GetAllAsync(BaseFilter filter)
     {
         _logger.LogInformation("Getting all customers");
         
-        var searchResponse = await _elasticClient.SearchAsync<Customer>();
+        var searchRequest = new SearchRequest<Customer>
+        {
+            Query = new MatchAllQuery(),
+            From = (filter.PageIndex - 1) * filter.PageSize,
+            Size = filter.PageSize
+        };
+        
+        var searchResponse = await _elasticClient.SearchAsync<Customer>(searchRequest);
         
         return searchResponse.Documents.ToList();
     }
@@ -67,5 +74,35 @@ public class CustomerService : ICustomerService
         var response = await _elasticClient.DeleteAsync<Customer>(id);
         
         return response.IsValid;
+    }
+
+    public async Task<List<Customer>> SearchAsync(BaseFilter filter)
+    {
+        _logger.LogInformation("Searching customers with filter: {Filter}", filter.Serialize());
+        
+        // Utiliser un search descriptor pour profiter de la syntaxe fluide
+        
+        var searchQuery = new SearchDescriptor<Customer>()
+            .Query(q => q.
+                Bool(c => c.
+                    Should(
+                        x => x.
+                            Match(m => m.
+                                Field(f => f.FirstName)
+                                .Query(filter.SearchTerm)),
+                        x => x.
+                        Match(m => m.
+                            Field(f => f.LastName)
+                            .Query(filter.SearchTerm))
+                        )
+                )
+            )
+            .From((filter.PageIndex - 1) * filter.PageSize)
+            .Size(filter.PageSize);
+        
+        
+        var searchResponse = await _elasticClient.SearchAsync<Customer>(searchQuery);
+        
+        return searchResponse.Documents.ToList();
     }
 }
