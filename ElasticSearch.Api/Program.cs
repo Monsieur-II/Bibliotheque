@@ -39,6 +39,7 @@ services.AddSerilogService(config);
 services.AddElasticSearchConfiguration(config);
 
 services.AddScoped<ICustomerService, CustomerService>();
+services.AddScoped<ICartItemService, CartItemService>();
 
 var app = builder.Build();
 

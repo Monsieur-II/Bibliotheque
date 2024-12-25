@@ -51,7 +51,7 @@ public static class ServiceCollectionExtensions
         }
 
         var host = config.Hosts[0];
-        var index = config.Hosts[0].Indexes[0];
+        var index = host.Indexes[0];
 
         var settings = new ConnectionSettings(new Uri(host.Url))
             .PrettyJson()
@@ -63,6 +63,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IElasticClient>(client);
         
         CreateCustomerIndex(client, index.Index);
+        
+        CreateCartIndex(client, host.Indexes[2].Index);
+        settings.DefaultMappingFor<CartItem>(x => x.
+            IndexName(host.Indexes[2].Index));
         
         return services;
     }
@@ -84,6 +88,13 @@ public static class ServiceCollectionExtensions
     {
         client.Indices.Create(indexName, i => i
             .Map<Customer>(x => x.
+                AutoMap()));
+    }
+    
+    private static void CreateCartIndex(IElasticClient client, string indexName)
+    {
+        client.Indices.Create(indexName, i => i
+            .Map<CartItem>(x => x.
                 AutoMap()));
     }
 }

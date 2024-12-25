@@ -8,8 +8,7 @@ public class CartItem
     public string CustomerId { get; set; }
     public string ProductId { get; set; }
     public int Quantity { get; set; }
+    public DateTime CreatedAt { get; set; } =  DateTime.UtcNow;
     [Ignore]
-    public string CreatedAt { get; set; }
-    [Ignore]
-    public string UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; } =  DateTime.UtcNow;
 }

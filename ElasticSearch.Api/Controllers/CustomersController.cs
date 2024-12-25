@@ -32,7 +32,7 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     }
     
     [HttpGet]
-    public async Task<IActionResult> GetCustomers(BaseFilter filter)
+    public async Task<IActionResult> GetCustomers([FromQuery] BaseFilter filter)
     {
         var response = await customerService.GetAllAsync(filter);
         
