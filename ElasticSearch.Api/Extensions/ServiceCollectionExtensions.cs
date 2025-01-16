@@ -4,6 +4,7 @@ using Nest;
 using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
+using Serilog.Sinks.Datadog.Logs;
 using Serilog.Sinks.Elasticsearch;
 using Serilog.Sinks.Graylog;
 using Serilog.Sinks.Graylog.Core.Transport;
@@ -36,6 +37,10 @@ public static class ServiceCollectionExtensions
                 NumberOfReplicas = 1,
                 NumberOfShards = 2
             })
+            .WriteTo.DatadogLogs(
+                apiKey: config["DataDogConfig"], 
+                service: "ElasticSearch.Api",
+                configuration: new DatadogConfiguration())
             .CreateLogger());
     }
     

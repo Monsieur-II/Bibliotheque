@@ -47,7 +47,7 @@ public class CartItemService(IElasticClient elasticClient,
                 .TopHits("Top_cart_item", t => t
                     .Sort(s => s.
                         Descending(c => c.Quantity))
-                    .Size(1) // This size is the number of hits to return from the top hits aggregation. NB: There could be multiple hits with the same max quantity. In this case, we only want one hit.
+                    .Size(1) // This size is the number of hits (documents) to return from the top hits aggregation
                 )
             );
         
