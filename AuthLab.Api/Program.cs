@@ -1,9 +1,53 @@
+using AuthLab.Api.Data;
+using AuthLab.Api.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+var services = builder.Services;
+var config = builder.Configuration;
+
+services.AddControllers();
+
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new()
+    {
+        Description = $@"Enter '[Bearer]' [space] and then your token in the text input below.<br/>
+                      Example: '{"Bearer"} 12345abcdef'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new()
+    {
+        {
+            new()
+            {
+                Reference = new()
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header,
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+services.AddApplicationDbContext(config);
+
+services.AddRouting(x => x.LowercaseUrls = true);
+
+services.AddBearerAuthentication(config);
+services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -14,31 +58,25 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+var scope = app.Services.CreateScope();
+var scopedServiceProvider = scope.ServiceProvider;
+var context = scopedServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-var summaries = new[]
+// // Ensure database is created
+await context.Database.EnsureCreatedAsync();
+
+var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+
+if (pendingMigrations.Any())
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    await context.Database.MigrateAsync(); //NB: This also calls EnsureCreated under the hood
 }
+
+app.UseHttpsRedirection();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
+
+await app.RunAsync();
