@@ -1,5 +1,7 @@
+using AuthLab.Api.Authentication;
 using AuthLab.Api.Data;
 using AuthLab.Api.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -46,8 +48,12 @@ services.AddApplicationDbContext(config);
 
 services.AddRouting(x => x.LowercaseUrls = true);
 
+//Auth
 services.AddBearerAuthentication(config);
+
 services.AddAuthorization();
+services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+services.AddSingleton<IAuthorizationPolicyProvider,PermissionPolicyProvider>();
 
 var app = builder.Build();
 

@@ -5,6 +5,7 @@ using AuthLab.Api.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 
 namespace AuthLab.Api.Extensions;
 
@@ -12,9 +13,14 @@ public static class ServiceCollectionExtensions
 {
     public static void AddApplicationDbContext(this IServiceCollection services, IConfiguration configuration)
     {
+        var dataSourceBuilder = new NpgsqlDataSourceBuilder(configuration.GetConnectionString("Defualt"));
+        dataSourceBuilder.UseJsonNet(); // or `dataSourceBuilder.EnableDynamicJson();` for System.Text.Json mappings
+        
+        var npgsqlDataSource = dataSourceBuilder.Build();
+        
         services.AddDbContext<ApplicationDbContext>(options =>
         {
-            options.UseNpgsql(configuration.GetConnectionString("Default"));
+            options.UseNpgsql(npgsqlDataSource);
         });
     }
     

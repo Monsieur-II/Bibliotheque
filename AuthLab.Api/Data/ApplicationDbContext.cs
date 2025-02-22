@@ -5,7 +5,8 @@ namespace AuthLab.Api.Data;
 
 public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<Customer> Customers { get; set; }
+    public DbSet<Staff> Customers { get; set; }
+    public DbSet<Role> Roles { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
